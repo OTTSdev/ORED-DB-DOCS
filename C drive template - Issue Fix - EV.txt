@@ -1,0 +1,100 @@
+
+=======================================================================
+https://www.exceltip.com/modules-class-modules-in-vba/what-is-filesystemobject-fso-and-how-to-use-it-in-vba-excel.html
+=======================================================================
+
+Module:  mdlCreateDoc
+
+Place code below between
+
+    headerPic = headerFooterDir & TBU & "_Header.bmp"
+    footerPic = headerFooterDir & TBU & "_Footer.bmp"
+
+AND
+
+    Set oWord = New Word.Application
+    DoEvents
+
+
+'*********************************************************************************************************************** DOWNLOAD TEMPLATES BEGIN
+
+    Dim fso As Object
+    Dim netPathTemplate As String
+    Dim netPathHeader As String
+    Dim netPathFooter As String
+    Dim localPathTemplate As String
+    Dim localPathHeader As String
+    Dim localPathFooter As String
+    Dim localDateLastModified As Date
+    Dim netDateLastModified As Date
+    Dim localFileChk As String
+    Dim localTemplateDir As String
+    Dim localLetterHeadDir As String
+    Dim localTemplateDirChk As String
+    Dim localLetterHeadDirChk As String
+
+    Dim netTemplateDir as string
+
+    
+    Set fso = VBA.CreateObject("Scripting.FileSystemObject")
+
+   ' docName = "2 - Template - Due Diligence Report.docx"                                                       ' Replace parameter wdTemplateName with docName
+   ' netTemplateDir = "U:\TSO Properties\TSO Properties - Active\TEST Properties - DO NOT DELETE\DEMO\"         ' Decide on shared drive location for templates
+
+    localTemplateDir="C:\ORED_Prod\" 
+    localLetterHeadDir="C:\ORED_Prod\templates\"
+
+    netPathTemplate= netTemplateDir & docName
+    localPathTemplate = DLookup("[Full Path]", "tblTemplates", "[Template Name] = '" & docName & "'")           ' move Dlookups here 
+    
+    netPathHeader = netTemplateDir & Letterheads\" & TBU & "_Header.bmp"
+    localPathHeader = headerPic
+    
+    netPathFooter = netTemplateDir & Letterheads\" & TBU & "_Footer.bmp"
+    localPathFooter = footerPic
+    
+    localFileChk = Dir(localPathTemplate)
+    
+    If localFileChk = "" Then
+  
+       localTemplateDirChk = Dir(localTemplateDir)       ' If local template folder doesn't exit, create it
+       If localTemplateDirChk = "" then
+          mkdir localTemplateDir
+       endif
+
+       localLetterHeadDirChk = Dir(localLetterHeadDir)   ' If local Letterhead folder doesn't exit, create it
+       If localLetterHeadDirChk = "" then
+          mkdir localLetterHeadDir
+       endif
+
+       fso.CopyFile Source:=netPathTemplate, Destination:=localPathTemplate
+       fso.CopyFile Source:=netPathHeader, Destination:=localPathHeader
+       fso.CopyFile Source:=netPathFooter, Destination:=localPathFooter
+
+    Else
+
+       localDateLastModified = fso.GetFile(localPathTemplate).DateLastModified
+       netDateLastModified = fso.GetFile(netPathTemplate).DateLastModified
+        
+       If localDateLastModified <> netDateLastModified Then
+     
+          fso.CopyFile Source:=netPathTemplate, Destination:=localPathTemplate
+          fso.CopyFile Source:=netPathHeader, Destination:=localPathHeader
+          fso.CopyFile Source:=netPathFooter, Destination:=localPathFooter
+
+       End If
+       
+   End If
+
+   Set fso = Nothing   
+
+
+'*********************************************************************************************************************** DOWNLOAD TEMP END
+
+
+
+
+
+
+
+
